@@ -1,0 +1,8 @@
+prefix=/home/eunbi/self_driving_PJT/catkin_ws/devel
+
+Name: step_1
+Description: Description of step_1
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,0 +1,2 @@
+step_1
+-DCATKIN_DEVEL_PREFIX=/home/eunbi/self_driving_PJT/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/eunbi/self_driving_PJT/catkin_ws/install -G Unix Makefiles
