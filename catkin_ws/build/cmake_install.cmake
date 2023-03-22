@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/eunbi/self_driving_PJT/catkin_ws/build/gtest/cmake_install.cmake")
   include("/home/eunbi/self_driving_PJT/catkin_ws/build/step_1/cmake_install.cmake")
+  include("/home/eunbi/self_driving_PJT/catkin_ws/build/step_2/cmake_install.cmake")
 
 endif()
 

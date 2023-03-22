@@ -32,6 +32,7 @@ def srv_client():
     # Lamps() turnSignal = 0 : No Signal / 1 : Left Signal / 2 : Right Signal / 3 : 이전 상태 유지
     # Lamps() emergencySignal = 0 : No Signal / 1 : Emergency Signal
     # set_pause = True : 시뮬레이터 Pause 상태로 유지 / False : 시뮬레이터 Play상태로 전환
+    '''
     lamp_cmd = Lamps()
     lamp_cmd.turnSignal = 1
     lamp_cmd.emergencySignal = 0
@@ -41,7 +42,6 @@ def srv_client():
     set_Event_control.ctrl_mode = 3
     set_Event_control.gear = 4
     set_Event_control.lamps = lamp_cmd
-    '''
 
     rate = rospy.Rate(1) # 1 hz
     while not rospy.is_shutdown():
@@ -50,11 +50,10 @@ def srv_client():
             '''
             # MoraiEventCmdSrv 라는 Morai ROS 서비스 형식을 사용하여 Service 호출 함수를 만든다.
             # Service 호출 이름은 시뮬레이터 Network 연결시 확인 가능하다.
-            ros_srv = rospy.ServiceProxy( 변수 1 , 변수 2 )
-            result = ros_srv( 변수 3 )
-            
             '''
-
+            ros_srv = rospy.ServiceProxy('/Service_MoraiEventCmd', MoraiEventCmdSrv)
+            result = ros_srv(set_Event_control)
+            
             #TODO: (4) Service 호출 결과 값 확인
             rospy.loginfo(result)
         except rospy.ServiceException as e:

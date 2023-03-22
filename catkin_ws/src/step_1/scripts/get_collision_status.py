@@ -27,9 +27,9 @@ def listener():
     '''
     # CollisionData 라는 Morai ROS 메세지 형식을 사용하여 Topic Subscriber 를 완성한다.
     # Topic 이름은 시뮬레이터 Network 연결시 확인 가능하다.
-    rospy.Subscriber( 변수 1 , 변수 2 , Collision_callback)
-
     '''
+    rospy.Subscriber('/CollisionData', CollisionData, Collision_callback)
+
     rospy.spin()
 
 if __name__ == '__main__':

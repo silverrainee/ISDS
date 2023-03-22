@@ -587,6 +587,24 @@ clean: step_1/CMakeFiles/std_msgs_generate_messages_py.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Directory level rules for directory step_2
+
+# Convenience name for "all" pass in the directory.
+step_2/all:
+
+.PHONY : step_2/all
+
+# Convenience name for "clean" pass in the directory.
+step_2/clean:
+
+.PHONY : step_2/clean
+
+# Convenience name for "preinstall" pass in the directory.
+step_2/preinstall:
+
+.PHONY : step_2/preinstall
+
+#=============================================================================
 # Special targets to cleanup operation of make.
 
 # Special rule to run CMake to check the build system integrity.

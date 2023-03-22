@@ -17,9 +17,9 @@ def talker():
     '''
     # MultiEgoSetting 라는 Morai ROS 메세지 형식을 사용하여 Topic Publisher 를 완성한다.
     # Topic 이름은 시뮬레이터 Network 연결시 확인 가능하다.
-    publisher = rospy.Publisher( 변수 1 , 변수 2 , queue_size=10)
-
     '''
+    publisher = rospy.Publisher('/ego_setting', MultiEgoSetting, queue_size=10)
+
     rospy.init_node('Ego_setting_Command', anonymous=True)
 
     #TODO: (2) 송신 될 메세지 변수 생성
@@ -27,21 +27,20 @@ def talker():
     # 시뮬레이터로 송신 될 메세지 변수를 만든다.
     # MultiEgoSetting 메세지는 차량의 위치와 상태를 바꾸는 명령어이다.
     # 원하는 위치에 원하는 상태 로 차량을 배치할 수 있다. 
-    ego_setting_msg = MultiEgoSetting()
-    ego_setting_msg.number_of_ego_vehicle = 
-    ego_setting_msg.camera_index = 
-    ego_setting_msg.ego_index = [ ]
-    ego_setting_msg.global_position_x = [ ]
-    ego_setting_msg.global_position_y = [ ]
-    ego_setting_msg.global_position_z = [ ]
-    ego_setting_msg.global_roll = [ ]
-    ego_setting_msg.global_pitch = [ ]
-    ego_setting_msg.global_yaw = [ ]
-    ego_setting_msg.velocity=[ ]
-    ego_setting_msg.gear=[ ]
-    ego_setting_msg.ctrl_mode=[ ] 
-    
     '''
+    ego_setting_msg = MultiEgoSetting()
+    ego_setting_msg.number_of_ego_vehicle = 1
+    ego_setting_msg.camera_index = 0
+    ego_setting_msg.ego_index = [0]
+    ego_setting_msg.global_position_x = [13.4]
+    ego_setting_msg.global_position_y = [1099]
+    ego_setting_msg.global_position_z = [3]
+    ego_setting_msg.global_roll = [0]
+    ego_setting_msg.global_pitch = [0]
+    ego_setting_msg.global_yaw = [60.0]
+    ego_setting_msg.velocity=[0]
+    ego_setting_msg.gear=[4]
+    ego_setting_msg.ctrl_mode=[16] 
 
     rate = rospy.Rate(1) # 1 hz
     while not rospy.is_shutdown():
@@ -49,9 +48,9 @@ def talker():
         #TODO: (3) /ego_setting 메세지 Publish
         '''
         # ego_setting_msg 를 전송하는 publisher 를 만든다.
-        publisher.
-        
         '''
+        publisher.publish(ego_setting_msg)
+        
         rate.sleep()
 
 if __name__ == '__main__':

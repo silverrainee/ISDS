@@ -17,9 +17,8 @@ def talker():
     '''
     # CtrlCmd 라는 Morai ROS 메세지 형식을 사용하여 Topic Publisher 를 완성한다.
     # Topic 이름은 시뮬레이터 Network 연결시 확인 가능하다.
-    publisher = rospy.Publisher( 변수 1 , 변수 2 , queue_size=10)
-
     '''
+    publisher = rospy.Publisher('/ctrl_cmd', CtrlCmd, queue_size=10)
 
     rospy.init_node('Ego_Control_Command', anonymous=True)
 
@@ -32,24 +31,21 @@ def talker():
     # Steering 은 차량의 앞 바퀴 각도를 의미하며 Rad 단위이다.
     # velocity, acceleration 은 각각 longlCmdType 값이 2,3 일때만 동작하며 차량의 속도 또는 가속도를 제어 입력 값으로 넣는다.
     # 원하는 제어 입력값을 넣은 뒤 시뮬레이터에서 차량의 변화를 관찰한다.
+    '''
     ctrl_cmd = CtrlCmd()
     ctrl_cmd.longlCmdType = 1
-    ctrl_cmd.accel = 
-    ctrl_cmd.brake = 
-    ctrl_cmd.steering = 
-    # ctrl_cmd.velocity = 
-    # ctrl_cmd.acceleration = 
+    ctrl_cmd.accel = 0.5
+    ctrl_cmd.brake = 0.0
+    ctrl_cmd.steering = 0.0
 
-    '''
     rate = rospy.Rate(1) # 1 hz
     while not rospy.is_shutdown():
         rospy.loginfo(ctrl_cmd)
         #TODO: (3) /ctrl_cmd 메세지 Publish
         '''
         # ctrl_cmd 를 전송하는 publisher 를 만든다.
-        publisher.
-        
         '''
+        publisher.publish(ctrl_cmd)
         
         rate.sleep()
 

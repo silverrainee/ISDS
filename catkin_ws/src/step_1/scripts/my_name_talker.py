@@ -19,9 +19,9 @@ def talker():
     '''
     # student 라는 직접 만든 Custom ROS 메세지 형식을 사용하여 Topic Publisher 를 완성한다.
     # Topic 이름은 'my_name' 으로 설정한다.
-    publisher = rospy.Publisher( 변수 1 , 변수 2 , queue_size=10)
-
     '''
+    publisher = rospy.Publisher('my_name', student, queue_size=10)
+
     #TODO: (2) ROS 노드 이름 선언
     rospy.init_node('my_name_talker', anonymous=True)
 
@@ -32,15 +32,14 @@ def talker():
     while not rospy.is_shutdown():
         #TODO: (4) 송신 될 메세지 변수 생성 및 터미널 창 출력 
         '''
-        # 송신 될 메세지 변수를 만든뒤 출력 결과를 확인한다.        
-        my_name = student()
-        my_name.first_name = 
-        my_name.last_name = 
-        my_name.age = 
-        my_name.score = 
-        rospy.loginfo('\n my name : %s %s \n my age : %i \n SSAFY score : %i', my_name.first_name,my_name.last_name,my_name.age,my_name.score)
-        
+        # 송신 될 메세지 변수를 만든뒤 출력 결과를 확인한다.
         '''
+        my_name = student()
+        my_name.first_name = 'Eunbi'
+        my_name.last_name = 'Jo'
+        my_name.age = 28
+        my_name.score = 80
+        rospy.loginfo('\n my name : %s %s \n my age : %i \n SSAFY score : %i', my_name.first_name,my_name.last_name,my_name.age,my_name.score)
         
         #TODO: (5) /my_name 메세지 Publish 
         publisher.publish(my_name)

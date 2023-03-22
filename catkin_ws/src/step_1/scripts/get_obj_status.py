@@ -20,7 +20,6 @@ from morai_msgs.msg import ObjectStatusList
 # Object의 종류는 크게 NPC Vehicle, Pedestrian, Obstacle 3가지로 되어 있습니다.
 # 각 Object의 위치와 속도 가속도 heading 값을 아래 형식에 맞춰서 작성하여 터미널 창에 출력해볼 수 있습니다. 
 # 아래 형식과 같이 반복문을 이용해 모든 Object 정보를 출력 해보세요.
-
 '''
 def Object_callback(data):
     os.system('clear')
@@ -33,20 +32,27 @@ def Object_callback(data):
         rospy.loginfo('velocity     : x = {0} , y = {1}, z = {2} m/s^2'.format(data.npc_list[i].velocity.x,data.npc_list[i].velocity.y,data.npc_list[i].velocity.z))
         rospy.loginfo('acceleration : x = {0} , y = {1}, z = {2} m/s'.format(data.npc_list[i].acceleration.x,data.npc_list[i].acceleration.y,data.npc_list[i].acceleration.z))
         rospy.loginfo('heading      : {} deg'.format(data.npc_list[i].heading))
-        rospy.loginfo('size         : x = {0} , y = {1}, z = {2} m'.format(data.npc_list[i].size.x,data.npc_list[i].size.y,data.npc_list[i].size.z))
-    '''
+        rospy.loginfo('size         : x = {0} , y = {1}, z = {2} m'.format(data.npc_list[i].size.x0..................................................,data.npc_list[i].size.y,data.npc_list[i].size.z))
     rospy.loginfo('-------------------- Pedestrian -------------------------')
     rospy.loginfo('NPC num :{}'.format(data.num_of_pedestrian))
     for i in range(data.num_of_pedestrian) :
         rospy.loginfo('--------------------Num {}-------------------------'.format(i))
-
+        rospy.loginfo('name : {}'.format(data.pedestrian_list[i].name))
+        rospy.loginfo('position     : x = {0} , y = {1}, z = {2}'.format(data.pedestrian_list[i].position.x,data.pedestrian_list[i].position.y,data.pedestrian_list[i].position.z))
+        rospy.loginfo('velocity     : x = {0} , y = {1}, z = {2} m/s^2'.format(data.pedestrian_list[i].velocity.x,data.pedestrian_list[i].velocity.y,data.pedestrian_list[i].velocity.z))
+        rospy.loginfo('acceleration : x = {0} , y = {1}, z = {2} m/s'.format(data.pedestrian_list[i].acceleration.x,data.pedestrian_list[i].acceleration.y,data.pedestrian_list[i].acceleration.z))
+        rospy.loginfo('heading      : {} deg'.format(data.pedestrian_list[i].heading))
+        rospy.loginfo('size         : x = {0} , y = {1}, z = {2} m'.format(data.pedestrian_list[i].size.x,data.pedestrian_list[i].size.y,data.pedestrian_list[i].size.z))
     rospy.loginfo('-------------------- Obstacle -------------------------')
     rospy.loginfo('NPC num :{}'.format(data.num_of_obstacle))
     for i in range(data.num_of_obstacle) :
         rospy.loginfo('--------------------Num {}-------------------------'.format(i))
         rospy.loginfo('name : {}'.format(data.obstacle_list[i].name))
-        
-    '''
+        rospy.loginfo('position     : x = {0} , y = {1}, z = {2}'.format(data.obstacle_list[i].position.x,data.obstacle_list[i].position.y,data.obstacle_list[i].position.z))
+        rospy.loginfo('velocity     : x = {0} , y = {1}, z = {2} m/s^2'.format(data.obstacle_list[i].velocity.x,data.obstacle_list[i].velocity.y,data.obstacle_list[i].velocity.z))
+        rospy.loginfo('acceleration : x = {0} , y = {1}, z = {2} m/s'.format(data.obstacle_list[i].acceleration.x,data.obstacle_list[i].acceleration.y,data.obstacle_list[i].acceleration.z))
+        rospy.loginfo('heading      : {} deg'.format(data.obstacle_list[i].heading))
+        rospy.loginfo('size         : x = {0} , y = {1}, z = {2} m'.format(data.obstacle_list[i].size.x,data.obstacle_list[i].size.y,data.obstacle_list[i].size.z))
 
 def listener():
     #TODO: (1) ROS 노드 이름 선언
@@ -56,9 +62,8 @@ def listener():
     '''
     # ObjectStatusList 라는 Morai ROS 메세지 형식을 사용하여 Topic Subscriber 를 완성한다.
     # Topic 이름은 시뮬레이터 Network 연결시 확인 가능하다.
-    rospy.Subscriber( 변수 1 , 변수 2 , Object_callback)
-
     '''
+    rospy.Subscriber('/Object_topic', ObjectStatusList, Object_callback)
 
     rospy.spin()
 
