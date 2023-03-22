@@ -177,7 +177,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(step_2_EXPORTED_TARGETS "")
+set(step_2_EXPORTED_TARGETS "step_2_generate_messages_cpp;step_2_generate_messages_eus;step_2_generate_messages_lisp;step_2_generate_messages_nodejs;step_2_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${step_2_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -214,7 +214,7 @@ foreach(depend ${depends})
   list(APPEND step_2_EXPORTED_TARGETS ${${step_2_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "step_2-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${step_2_DIR}/${extra})
