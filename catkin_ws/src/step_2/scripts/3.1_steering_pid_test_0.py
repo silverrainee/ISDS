@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+pid p_gain 값을 1 ~ 2까지 0.1 간격으로 늘리면서 오차(target_steering를 출력한다. (실제 steering_output과는 다름)
+'''
+
 # import ros, math, msg
 import rospy
 import rospkg
@@ -24,6 +28,7 @@ class ctrl_cmd_pub:
         rospy.Subscriber("/odom", Odometry, self.odom_callback)
         rospy.Subscriber("/Ego_topic", EgoVehicleStatus, self.status_callback)
         self.ctrl_cmd_pub = rospy.Publisher('/ctrl_cmd', CtrlCmd, queue_size=1)
+        self.error_pub = rospy.Publisher('/error', Float32, queue_size=1)
         
         # 데이터 유무 플래그
         self.is_path = False
@@ -35,6 +40,7 @@ class ctrl_cmd_pub:
         # 발행 메시지 변수 선언
         self.ctrl_cmd_msg = CtrlCmd()
         self.ctrl_cmd_msg.longlCmdType = 1
+        self.error_msg = Float32()
         
         # 물리 변수 선언
         self.max_velocity = 100.0 / 3.6
@@ -42,25 +48,26 @@ class ctrl_cmd_pub:
         
         self.r = float('inf')
         self.vehicle_length = 2.984
-        self.lfd = 10.0
-        self.min_lfd = 5.0
-        self.max_lfd = 30.0
+        self.lfd = 10
+        self.min_lfd=5
+        self.max_lfd=30
         self.lfd_gain = 1.0
         
         # p_gain, i_gain, d_gain 을 변수로 선언할 수 있음
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
-        self.steering_pid = pidControl(1.00, 0.00, 0.00)
+        self.steering_pid = pidControl(1.80, 0.01, 0.06)
 
         self.target_steering = 0.0
         self.target_velocity = 100 / 3.6
 
-        rate = rospy.Rate(30)
-        
 
+        rate = rospy.Rate(30)
         while not rospy.is_shutdown():
             if self.is_path is True and self.is_odom is True and self.is_status is True and self.is_velocity is True: # 메시지 수신 확인
                 
                 self.target_steering = self.find_target_steering()
+                self.error_msg.data = self.target_steering
+                self.error_pub.publish(self.error_msg)
                 
                 velocity_output = self.velocity_pid.output(self.target_velocity, self.status_msg.velocity.x)
                 steering_output = self.steering_pid.output(self.target_steering, 0.0)
@@ -103,12 +110,12 @@ class ctrl_cmd_pub:
     
     def find_target_steering(self):
 
-        self.lfd = (self.status_msg.velocity.x) * self.lfd_gain
+        # self.lfd = (self.status_msg.velocity.x) * self.lfd_gain
         
-        if self.lfd < self.min_lfd : 
-            self.lfd = self.min_lfd
-        elif self.lfd > self.max_lfd :
-            self.lfd=self.max_lfd
+        # if self.lfd < self.min_lfd : 
+        #     self.lfd = self.min_lfd
+        # elif self.lfd > self.max_lfd :
+        #     self.lfd=self.max_lfd
         
         translation = [self.current_position.x, self.current_position.y]
         

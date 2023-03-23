@@ -108,7 +108,7 @@ class GPSIMUParser:
         self.odom_msg.header.stamp = rospy.get_rostime()
         self.odom_msg.pose.pose.position.x = self.x
         self.odom_msg.pose.pose.position.y = self.y
-        self.odom_msg.pose.pose.position.z = self.z
+        self.odom_msg.pose.pose.position.z = 0.0
 
     def imu_callback(self, data):
 
