@@ -12,5 +12,5 @@
     <node pkg="step_2" type="3.1_steering_pid_test_0.py" name="ctrl_cmd_pub" output="screen"  />
 
 
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find ssafy_2)/rviz/kcity_rviz.rviz" />
+    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find ssafy_2)/rviz/kcity_rviz.rviz" /> -->
 </launch>
