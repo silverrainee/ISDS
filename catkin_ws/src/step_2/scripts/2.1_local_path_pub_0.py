@@ -97,66 +97,94 @@ class local_path_pub :
     def find_target_velocity(self):
         r = self.find_r()
         velocity = Float32()
-        velocity = sqrt(abs(r) * 9.8 * self.friction)
+        velocity = sqrt(abs(r) * 9.8 * self.friction) * 0.9 * (len(self.local_path_msg.poses) / self.local_path_size)
+        velocity = velocity 
         if velocity > self.max_velocity:
             velocity = self.max_velocity
         
         return velocity
 
     def find_r(self):
+        r = float('inf')
         
-        small_size = 25
-        big_size = 99
-
-        big_X_array = []
-        big_Y_array = []
-
-        big_r = float('inf')
-        small_r = float('inf')
-        min_small_r = float('inf')
-
-        for big_idx in range(0,big_size+1,big_size//2):
-            x = self.local_path_msg.poses[big_idx].pose.position.x
-            y = self.local_path_msg.poses[big_idx].pose.position.y
-            big_X_array.append([x,y,1])
-            big_Y_array.append([-(x**2)-(y**2)])
-
-        if(np.linalg.det(big_X_array)):
-                
-            X_inverse = np.linalg.inv(big_X_array)
-
-            A_array = X_inverse.dot(big_Y_array)
-            a = A_array[0]*-0.5
-            b = A_array[1]*-0.5
-            c = A_array[2]
-            big_r = sqrt(a*a + b*b - c)
+        size_arr = [25, 50, 100]
         
-        for path_idx in range(0,len(self.local_path_msg.poses) - small_size):
+        for size in size_arr:
+            if len(self.local_path_msg.poses) < size:
+                break
             
-            small_X_array = []
-            small_Y_array = []
-
-            for small_idx in range(0,small_size+1,small_size//2):
-                x = self.local_path_msg.poses[path_idx+small_idx].pose.position.x
-                y = self.local_path_msg.poses[path_idx+small_idx].pose.position.y
-                small_X_array.append([x,y,1])
-                small_Y_array.append([-(x**2)-(y**2)])
-
-            if(np.linalg.det(small_X_array)):
+            idx_arr = [0, size // 2, size - 1]
+            X_arr = []
+            Y_arr = []
+            for idx in idx_arr:
+                x = self.local_path_msg.poses[idx].pose.position.x
+                y = self.local_path_msg.poses[idx].pose.position.y
+                X_arr.append([x, y, 1])
+                Y_arr.append([-(x**2)-(y**2)])
+            
+            if(np.linalg.det(X_arr)):
+                X_inverse = np.linalg.inv(X_arr)
                 
-                X_inverse = np.linalg.inv(small_X_array)
-
-                A_array = X_inverse.dot(small_Y_array)
-                a = A_array[0]*-0.5
-                b = A_array[1]*-0.5
-                c = A_array[2]
-
-                small_r = sqrt(a*a + b*b - c)
+                sol_arr = X_inverse.dot(Y_arr)
+                a = sol_arr[0]*-0.5
+                b = sol_arr[1]*-0.5
+                c = sol_arr[2]
+                r_temp = sqrt(a*a + b*b - c)
                 
-            if min_small_r > small_r:
-                min_small_r = small_r
+                r = min(r, r_temp)
         
-        r = min(min_small_r,big_r)
+        # small_size = 25
+        # big_size = 99
+
+        # big_X_array = []
+        # big_Y_array = []
+
+        # big_r = float('inf')
+        # small_r = float('inf')
+        # min_small_r = float('inf')
+
+        # for big_idx in range(0,big_size+1,big_size//2):
+        #     x = self.local_path_msg.poses[big_idx].pose.position.x
+        #     y = self.local_path_msg.poses[big_idx].pose.position.y
+        #     big_X_array.append([x,y,1])
+        #     big_Y_array.append([-(x**2)-(y**2)])
+
+        # if(np.linalg.det(big_X_array)):
+                
+        #     X_inverse = np.linalg.inv(big_X_array)
+
+        #     A_array = X_inverse.dot(big_Y_array)
+        #     a = A_array[0]*-0.5
+        #     b = A_array[1]*-0.5
+        #     c = A_array[2]
+        #     big_r = sqrt(a*a + b*b - c)
+        
+        # for path_idx in range(0,len(self.local_path_msg.poses) - small_size):
+            
+        #     small_X_array = []
+        #     small_Y_array = []
+
+        #     for small_idx in range(0,small_size+1,small_size//2):
+        #         x = self.local_path_msg.poses[path_idx+small_idx].pose.position.x
+        #         y = self.local_path_msg.poses[path_idx+small_idx].pose.position.y
+        #         small_X_array.append([x,y,1])
+        #         small_Y_array.append([-(x**2)-(y**2)])
+
+        #     if(np.linalg.det(small_X_array)):
+                
+        #         X_inverse = np.linalg.inv(small_X_array)
+
+        #         A_array = X_inverse.dot(small_Y_array)
+        #         a = A_array[0]*-0.5
+        #         b = A_array[1]*-0.5 
+        #         c = A_array[2]
+
+        #         small_r = sqrt(a*a + b*b - c)
+                
+        #     if min_small_r > small_r:
+        #         min_small_r = small_r
+        
+        # r = min(min_small_r,big_r)
 
         return r
 

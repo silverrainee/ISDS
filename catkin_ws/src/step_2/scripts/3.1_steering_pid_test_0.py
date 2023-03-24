@@ -55,7 +55,7 @@ class ctrl_cmd_pub:
         
         # p_gain, i_gain, d_gain 을 변수로 선언할 수 있음
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
-        self.steering_pid = pidControl(1.80, 0.01, 0.06)
+        self.steering_pid = pidControl(1.00, 0.01, 0.00)
 
         self.target_steering = 0.0
         self.target_velocity = 100 / 3.6
