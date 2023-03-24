@@ -37,9 +37,6 @@ class ctrl_cmd_pub:
         self.ctrl_cmd_msg.longlCmdType = 1
         
         # 물리 변수 선언
-        self.max_velocity = 100.0 / 3.6
-        self.friction = 0.8
-        
         self.r = float('inf')
         self.vehicle_length = 2.984
         self.lfd = 10.0
@@ -118,6 +115,7 @@ class ctrl_cmd_pub:
             [0                      ,0                      ,1              ]])
         
         det_trans_matrix = np.linalg.inv(trans_matrix)
+        dis = 0
         
         for i, pose in enumerate(self.path.poses):
             path_point = pose.pose.position
@@ -131,7 +129,7 @@ class ctrl_cmd_pub:
 
                     break
                 
-        theta = atan2(local_path_point[1],local_path_point[0])
+        theta = atan2(local_path_point[1] + 0.024*dis,local_path_point[0])
         steering = atan2((2*self.vehicle_length*sin(theta)),self.lfd)
 
         return steering

@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+속도 = [20, 40, 80]
+look-ahead distance = [5, 10, 20, 30]
+error = nearist_point.y - y
+'''
+
 # import ros, math, msg
 import rospy
 import rospkg
@@ -20,10 +26,11 @@ class ctrl_cmd_pub:
         
         # 구독, 발행 함수 선언
         rospy.Subscriber("/local_path", Path, self.path_callback)
-        rospy.Subscriber('/velocity', Float32, self.velocity_callback)
+        # rospy.Subscriber('/velocity', Float32, self.velocity_callback)
         rospy.Subscriber("/odom", Odometry, self.odom_callback)
         rospy.Subscriber("/Ego_topic", EgoVehicleStatus, self.status_callback)
         self.ctrl_cmd_pub = rospy.Publisher('/ctrl_cmd', CtrlCmd, queue_size=1)
+        self.error_pub = rospy.Publisher('/error', Float32, queue_size=1)
         
         # 데이터 유무 플래그
         self.is_path = False
@@ -35,27 +42,24 @@ class ctrl_cmd_pub:
         # 발행 메시지 변수 선언
         self.ctrl_cmd_msg = CtrlCmd()
         self.ctrl_cmd_msg.longlCmdType = 1
+        self.error_msg = Float32()
+        self.error_msg.data = 0.0
         
         # 물리 변수 선언
         self.r = float('inf')
         self.vehicle_length = 2.984
-        self.lfd = 10.0
-        self.min_lfd = 5.0
-        self.max_lfd = 30.0
-        self.lfd_gain = 1.0
+        self.look_ahead_distance = 5
         
         # p_gain, i_gain, d_gain 을 변수로 선언할 수 있음
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
-        self.steering_pid = pidControl(1.00, 0.00, 0.00)
+        self.steering_pid = pidControl(1.30, 0.00, 0.04)
 
         self.target_steering = 0.0
-        self.target_velocity = 100 / 3.6
+        self.target_velocity = 20 / 3.6
 
         rate = rospy.Rate(30)
-        
-
         while not rospy.is_shutdown():
-            if self.is_path is True and self.is_odom is True and self.is_status is True and self.is_velocity is True: # 메시지 수신 확인
+            if self.is_path is True and self.is_odom is True and self.is_status is True: # 메시지 수신 확인
                 
                 self.target_steering = self.find_target_steering()
                 
@@ -72,6 +76,7 @@ class ctrl_cmd_pub:
                 self.ctrl_cmd_msg.steering = steering_output
                 
                 self.ctrl_cmd_pub.publish(self.ctrl_cmd_msg)
+                self.error_pub.publish(self.error_msg)
                     
             rate.sleep()
         
@@ -79,12 +84,6 @@ class ctrl_cmd_pub:
         self.path = msg
         
         self.is_path = True
-    
-    def velocity_callback(self, msg):
-        
-        self.target_velocity = msg.data
-        
-        self.is_velocity = True
     
     def odom_callback(self, msg):
         self.current_position = msg.pose.pose.position
@@ -100,13 +99,6 @@ class ctrl_cmd_pub:
     
     def find_target_steering(self):
 
-        self.lfd = (self.status_msg.velocity.x) * self.lfd_gain
-        
-        if self.lfd < self.min_lfd : 
-            self.lfd = self.min_lfd
-        elif self.lfd > self.max_lfd :
-            self.lfd=self.max_lfd
-        
         translation = [self.current_position.x, self.current_position.y]
         
         trans_matrix = np.array([
@@ -116,6 +108,9 @@ class ctrl_cmd_pub:
         
         det_trans_matrix = np.linalg.inv(trans_matrix)
         
+        error_dis = float('inf')
+        dis = 0
+        
         for i, pose in enumerate(self.path.poses):
             path_point = pose.pose.position
             
@@ -124,12 +119,14 @@ class ctrl_cmd_pub:
             
             if local_path_point[0] > 0:
                 dis = sqrt(pow(local_path_point[0], 2) + pow(local_path_point[1], 2))
-                if dis >= self.lfd:
-
+                if error_dis > dis:
+                    error_dis = dis
+                    self.error_msg.data = local_path_point[1]
+                if dis >= self.look_ahead_distance:
                     break
                 
-        theta = atan2(local_path_point[1],local_path_point[0])
-        steering = atan2((2*self.vehicle_length*sin(theta)),self.lfd)
+        steering = atan2(local_path_point[1] + 0.024*dis,(local_path_point[0] - self.vehicle_length))
+        # steering = atan2((2*self.vehicle_length*sin(theta)), dis)
 
         return steering
 

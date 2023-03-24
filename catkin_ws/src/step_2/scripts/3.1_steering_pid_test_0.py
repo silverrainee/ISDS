@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-pid p_gain 값을 1 ~ 2까지 0.1 간격으로 늘리면서 오차(target_steering를 출력한다. (실제 steering_output과는 다름)
-'''
-
 # import ros, math, msg
 import rospy
 import rospkg
