@@ -129,8 +129,7 @@ class ctrl_cmd_pub:
 
                     break
                 
-        theta = atan2(local_path_point[1] + 0.024*dis,local_path_point[0])
-        steering = atan2((2*self.vehicle_length*sin(theta)),self.lfd)
+        steering = atan2(local_path_point[1] + 0.024*dis,(local_path_point[0] - self.vehicle_length))
 
         return steering
 
