@@ -37,23 +37,20 @@ class ctrl_cmd_pub:
         self.ctrl_cmd_msg.longlCmdType = 1
         
         # 물리 변수 선언
-        self.r = float('inf')
         self.vehicle_length = 2.984
-        self.lfd = 10.0
-        self.min_lfd = 5.0
-        self.max_lfd = 30.0
-        self.lfd_gain = 1.0
+        self.lad = 15.0
+        self.lad_min = 3
+        self.lad_max = 30
+        self.lad_gain = 0.6
         
         # p_gain, i_gain, d_gain 을 변수로 선언할 수 있음
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
-        self.steering_pid = pidControl(1.30, 0.00, 0.04)
+        self.steering_pid = pidControl(1.00, 0.00, 0.00)
 
         self.target_steering = 0.0
-        self.target_velocity = 100 / 3.6
+        self.target_velocity = 60 / 3.6
 
         rate = rospy.Rate(30)
-        
-
         while not rospy.is_shutdown():
             if self.is_path is True and self.is_odom is True and self.is_status is True and self.is_velocity is True: # 메시지 수신 확인
                 
@@ -100,12 +97,9 @@ class ctrl_cmd_pub:
     
     def find_target_steering(self):
 
-        self.lfd = (self.status_msg.velocity.x) * self.lfd_gain
-        
-        if self.lfd < self.min_lfd : 
-            self.lfd = self.min_lfd
-        elif self.lfd > self.max_lfd :
-            self.lfd=self.max_lfd
+        self.lad = (self.status_msg.velocity.x)*self.lad_gain
+        self.lad = max(self.lad, self.lad_min)
+        self.lad = min(self.lad, self.lad_max)
         
         translation = [self.current_position.x, self.current_position.y]
         
@@ -126,11 +120,11 @@ class ctrl_cmd_pub:
             if local_path_point[0] > 0:
                 dis = sqrt(pow(local_path_point[0], 2) + pow(local_path_point[1], 2))
                 if dis >= self.lfd:
-
                     break
                 
-        steering = atan2(local_path_point[1],(local_path_point[0] - self.vehicle_length))
-
+        theta = atan2(local_path_point[1],local_path_point[0])
+        steering = atan2(2*self.vehicle_length*sin(theta), dis)
+        
         return steering
 
 

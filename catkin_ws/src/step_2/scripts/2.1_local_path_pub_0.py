@@ -113,25 +113,26 @@ class local_path_pub :
             if len(self.local_path_msg.poses) < size:
                 break
             
-            idx_arr = [0, size // 2, size - 1]
-            X_arr = []
-            Y_arr = []
-            for idx in idx_arr:
-                x = self.local_path_msg.poses[idx].pose.position.x
-                y = self.local_path_msg.poses[idx].pose.position.y
-                X_arr.append([x, y, 1])
-                Y_arr.append([-(x**2)-(y**2)])
-            
-            if(np.linalg.det(X_arr)):
-                X_inverse = np.linalg.inv(X_arr)
+            for index in range(0, len(self.local_path_msg.poses) - size, size):
+                idx_arr = [index, index + size // 2, index + size - 1]
+                X_arr = []
+                Y_arr = []
+                for idx in idx_arr:
+                    x = self.local_path_msg.poses[idx].pose.position.x
+                    y = self.local_path_msg.poses[idx].pose.position.y
+                    X_arr.append([x, y, 1])
+                    Y_arr.append([-(x**2)-(y**2)])
                 
-                sol_arr = X_inverse.dot(Y_arr)
-                a = sol_arr[0]*-0.5
-                b = sol_arr[1]*-0.5
-                c = sol_arr[2]
-                r_temp = sqrt(a*a + b*b - c)
-                
-                r = min(r, r_temp)
+                if(np.linalg.det(X_arr)):
+                    X_inverse = np.linalg.inv(X_arr)
+                    
+                    sol_arr = X_inverse.dot(Y_arr)
+                    a = sol_arr[0]*-0.5
+                    b = sol_arr[1]*-0.5
+                    c = sol_arr[2]
+                    r_temp = sqrt(a*a + b*b - c)
+                    
+                    r = min(r, r_temp)
         
         # small_size = 25
         # big_size = 99
