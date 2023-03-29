@@ -8,6 +8,7 @@ import os
 import copy
 import numpy as np
 import json
+import time
 
 from math import cos,sin,sqrt,pow,atan2,pi
 from geometry_msgs.msg import Point32,PoseStamped
@@ -48,6 +49,7 @@ class dijkstra_path_pub :
         self.nodes = mgeo_planner_map.node_set.nodes
         self.links = mgeo_planner_map.link_set.lines
 
+        rospy.loginfo("start")
         self.global_planner = Dijkstra(self.nodes,self.links)
 
         #TODO: (2) 시작 Node 와 종료 Node 정의
@@ -58,6 +60,7 @@ class dijkstra_path_pub :
         self.global_path_msg.header.frame_id = '/map'
 
         self.global_path_msg = self.calc_dijkstra_path_node(self.start_node, self.end_node)
+        rospy.loginfo("end")
 
         rate = rospy.Rate(10) # 10hz
         while not rospy.is_shutdown():
