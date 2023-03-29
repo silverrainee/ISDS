@@ -97,7 +97,7 @@ class local_path_pub :
     def find_target_velocity(self):
         r = self.find_r()
         velocity = Float32()
-        velocity = sqrt(abs(r) * 9.8 * self.friction) * 0.9 * (len(self.local_path_msg.poses) / self.local_path_size)
+        velocity = sqrt(abs(r) * 9.8 * self.friction) * 0.8 * (len(self.local_path_msg.poses) / self.local_path_size)
         velocity = velocity 
         if velocity > self.max_velocity:
             velocity = self.max_velocity
@@ -107,7 +107,7 @@ class local_path_pub :
     def find_r(self):
         r = float('inf')
         
-        size_arr = [25, 50, 100]
+        size_arr = [20, 50, 100]
         
         for size in size_arr:
             if len(self.local_path_msg.poses) < size:

@@ -40,12 +40,12 @@ class ctrl_cmd_pub:
         self.vehicle_length = 2.984
         self.lad = 15.0
         self.lad_min = 3
-        self.lad_max = 30
+        self.lad_max = 20
         self.lad_gain = 0.6
         
         # p_gain, i_gain, d_gain 을 변수로 선언할 수 있음
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
-        self.steering_pid = pidControl(1.00, 0.00, 0.00)
+        self.steering_pid = pidControl(1.30, 0.00, 0.00)
 
         self.target_steering = 0.0
         self.target_velocity = 60 / 3.6
@@ -119,10 +119,10 @@ class ctrl_cmd_pub:
             
             if local_path_point[0] > 0:
                 dis = sqrt(pow(local_path_point[0], 2) + pow(local_path_point[1], 2))
-                if dis >= self.lfd:
+                if dis >= self.lad:
                     break
                 
-        theta = atan2(local_path_point[1],local_path_point[0])
+        theta = atan2(local_path_point[1] + 0.024*dis,local_path_point[0])
         steering = atan2(2*self.vehicle_length*sin(theta), dis)
         
         return steering

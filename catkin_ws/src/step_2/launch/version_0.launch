@@ -11,7 +11,7 @@ mgeo O, odom O, traffic_status X, npc_car_status X, pedestrian_status X, obstacl
 
 <launch>
     <!-- mgeo 파트 -->
-    <node pkg="step_2" type="0.1_global_path_pub_0.py" name="global_path_pub" />
+    <node pkg="step_2" type="0.1_global_path_pub_0.0.py" name="global_path_pub" />
     
     <!-- 인지 파트 -->
     <node pkg="step_2" type="1.1_odom_pub_0.py" name="odom_pub"  />
@@ -22,7 +22,7 @@ mgeo O, odom O, traffic_status X, npc_car_status X, pedestrian_status X, obstacl
     <!-- 제어 파트 -->
     <!-- 프레임 코드 -->
     <!-- <node pkg="step_2" type="3.1_ctrl_cmd_pub_0.0.py" name="ctrl_cmd_pub" output="screen"  /> -->
-    <!-- pid gain 값 수정 코드 -->
+    <!-- lad/pid gain 값 수정 코드 -->
     <node pkg="step_2" type="3.1_ctrl_cmd_pub_0.1.py" name="ctrl_cmd_pub" output="screen"  />
 
 
