@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import rospy
+import rospkg
+import sys
+import os
+import copy
+import numpy as np
+import json
+
+from math import cos,sin,sqrt,pow,atan2,pi
+import heapq
+from std_msgs.msg import Int16
+from geometry_msgs.msg import Point32,PoseStamped
+from nav_msgs.msg import Odometry,Path
+from collections import deque
+
+current_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(current_path)
+
+from lib.mgeo.class_defs import *
+
+'''
+0. pub,sub 함수 정의
+1. Mgeo data 읽어온 후 nodes, links 데이터 생성
+2. 경로 node 정의
+3. 순서대로 dijkstra 경로 생성 후 PoseStamped() 배열로 반환
+4. is_rec_global_path == False 인 동안 global_path pub
+'''
+
+class global_path_pub :
+    def __init__(self):
+        #TODO: (0) publish, subscribe 정의
+        rospy.init_node('global_path_pub', anonymous=True)
+        
+        rospy.Subscriber('/rec_global_path', Int16, self.rec_global_path)
+        self.is_rec_global_path = False
+
+        self.global_path_pub = rospy.Publisher('/global_path', Path, queue_size=1)
+        self.global_path_msg = Path()
+        self.global_path_msg.header.frame_id = '/map'
+
+        #TODO: (1) Mgeo data 읽어온 후 nodes, links 데이터 생성
+        load_path = os.path.normpath(os.path.join(current_path, 'lib/mgeo_data/R_KR_PG_K-City'))
+        mgeo_planner_map = MGeo.create_instance_from_json(load_path)
+
+        self.nodes=mgeo_planner_map.node_set.nodes
+        self.links=mgeo_planner_map.link_set.lines
+
+        #TODO: (2) 경로 node 정의
+        self.node_path = ['A119BS010184', 'A119BS010168', 'A119BS010754', 'A119BS010201', 'A119BS010184']
+
+        #TODO: (3) 순서대로 Dijkstra 경로 생성 후 반환
+        for i in range(0, len(self.node_path) - 1):
+            self.find_shortest_path(self.node_path[i], self.node_path[i+1])
+
+        #TODO: (4) is_rec_global_path == False 인 동안 global_path pub
+        rate = rospy.Rate(10) # 10hz
+        while not rospy.is_shutdown():
+            if self.is_rec_global_path:
+                break
+            
+            self.global_path_pub.publish(self.global_path_msg)
+
+            rate.sleep()
+    
+    def rec_global_path(self,msg):
+        if msg.data == 1:
+            self.is_rec_global_path = True
+    
+    def find_shortest_path(self, start_node_id, end_node_id):
+        distances = dict()
+        from_node = {}
+        from_link = {}
+        for node_id in self.nodes.keys():
+            distances[node_id] = float('inf')
+        
+        distances[start_node_id] = 0
+        queue = []
+        heapq.heappush(queue, [distances[start_node_id], start_node_id])
+        
+        while queue:
+            current_distance, current_node_id = heapq.heappop(queue)
+            
+            if current_node_id == end_node_id:
+                break
+            
+            if distances[current_node_id] < current_distance:
+                continue
+            
+            for link in self.nodes[current_node_id].get_to_links():
+                adjacent_node_id = link.to_node.idx
+                distance = current_distance + link.cost
+                
+                if distance < distances[adjacent_node_id]:
+                    distances[adjacent_node_id] = distance
+                    from_node[adjacent_node_id] = current_node_id
+                    from_link[adjacent_node_id] = link.idx
+                    heapq.heappush(queue, [distance, adjacent_node_id])
+        
+        link_path = []
+        shortest_path = end_node_id
+        
+        while shortest_path != start_node_id:
+            link_path.insert(0, from_link[shortest_path])
+            shortest_path = from_node[shortest_path]
+        
+        
+        for link_id in link_path:
+            link = self.links[link_id]
+            for point in link.points:
+                pose = PoseStamped()
+                pose.pose.position.x = point[0]
+                pose.pose.position.y = point[1]
+                pose.pose.orientation.w = 1
+                self.global_path_msg.poses.append(pose)
+
+if __name__ == '__main__':
+    
+    global_path_pub = global_path_pub()
