@@ -22,7 +22,7 @@ class AccCtrlPub:
         rospy.Subscriber('/Object_topic', ObjectStatusList, self.object_info_callback)
 
         # ROS Topic으로 데이터를 송신하는 Publisher 생성
-        self.target_vel_pub = rospy.Publisher('/velocity_1', Float32, queue_size=1)
+        self.target_vel_pub = rospy.Publisher('/velocity2', Float32, queue_size=1)
 
         # 초기 속도 설정
         self.target_vel = Float32()
