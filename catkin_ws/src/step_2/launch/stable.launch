@@ -1,0 +1,18 @@
+
+
+<launch>
+    <!-- mgeo 파트 -->
+    <node pkg="step_2" type="global_path_pub.py" name="global_path_pub" />
+    
+    <!-- 인지 파트 -->
+    <node pkg="step_2" type="odom_pub.py" name="odom_pub"  />
+    
+    <!-- 판단 파트 -->
+    <node pkg="step_2" type="local_path_pub.py" name="local_path_pub" />
+    
+    <!-- 제어 파트 -->
+    <node pkg="step_2" type="ctrl_cmd_pub.py" name="ctrl_cmd_pub" output="screen"  />
+
+
+    <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d $(find ssafy_2)/rviz/kcity_rviz.rviz" /> -->
+</launch>
