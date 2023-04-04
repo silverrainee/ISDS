@@ -65,15 +65,15 @@ class local_path_pub :
                 
                 #TODO: (6) 가장 가까운 포인트(Currenty Waypoint) 위치부터 Local Path 생성 및 예외 처리
                 if current_waypoint != -1 :
-                    for num in range(current_waypoint, 0, -1):
-                        if current_waypoint - num >= (self.local_path_size/2):
-                            break
-                        tmp_pose=PoseStamped()
-                        tmp_pose.pose.position.x=self.global_path_msg.poses[num].pose.position.x
-                        tmp_pose.pose.position.y=self.global_path_msg.poses[num].pose.position.y
-                        tmp_pose.pose.orientation.w=1
-                        self.local_path_msg.poses.append(tmp_pose)
-                    self.local_path_msg.poses.reverse()
+                    # for num in range(current_waypoint, 0, -1):
+                    #     if current_waypoint - num >= (self.local_path_size/2):
+                    #         break
+                    #     tmp_pose=PoseStamped()
+                    #     tmp_pose.pose.position.x=self.global_path_msg.poses[num].pose.position.x
+                    #     tmp_pose.pose.position.y=self.global_path_msg.poses[num].pose.position.y
+                    #     tmp_pose.pose.orientation.w=1
+                    #     self.local_path_msg.poses.append(tmp_pose)
+                    # self.local_path_msg.poses.reverse()
                     
                     for num in range(current_waypoint,len(self.global_path_msg.poses) ) :
                         if num - current_waypoint >= self.local_path_size:
@@ -107,7 +107,7 @@ class local_path_pub :
     def find_target_velocity(self):
         r = self.find_r()
         velocity = Float32()
-        velocity = sqrt(abs(r) * 9.8 * self.friction) * 0.8 * (len(self.local_path_msg.poses) / (self.local_path_size*1.5))
+        velocity = sqrt(abs(r) * 9.8 * self.friction) * (len(self.local_path_msg.poses) / (self.local_path_size))
         velocity = velocity 
         if velocity > self.max_velocity:
             velocity = self.max_velocity
@@ -123,26 +123,25 @@ class local_path_pub :
             if len(self.local_path_msg.poses) < size:
                 break
             
-            for index in range(0, len(self.local_path_msg.poses) - size, size):
-                idx_arr = [index, index + size // 2, index + size - 1]
-                X_arr = []
-                Y_arr = []
-                for idx in idx_arr:
-                    x = self.local_path_msg.poses[idx].pose.position.x
-                    y = self.local_path_msg.poses[idx].pose.position.y
-                    X_arr.append([x, y, 1])
-                    Y_arr.append([-(x**2)-(y**2)])
+            X_arr = []
+            Y_arr = []
+            
+            for idx in [0, size//2, size - 1]:
+                x = self.local_path_msg.poses[idx].pose.position.x
+                y = self.local_path_msg.poses[idx].pose.position.y
+                X_arr.append([x, y, 1])
+                Y_arr.append([-(x**2)-(y**2)])
                 
-                if(np.linalg.det(X_arr)):
-                    X_inverse = np.linalg.inv(X_arr)
-                    
-                    sol_arr = X_inverse.dot(Y_arr)
-                    a = sol_arr[0]*-0.5
-                    b = sol_arr[1]*-0.5
-                    c = sol_arr[2]
-                    r_temp = sqrt(a*a + b*b - c)
-                    
-                    r = min(r, r_temp)
+            if(np.linalg.det(X_arr)):
+                X_inverse = np.linalg.inv(X_arr)
+                
+                sol_arr = X_inverse.dot(Y_arr)
+                a = sol_arr[0]*-0.5
+                b = sol_arr[1]*-0.5
+                c = sol_arr[2]
+                r_temp = sqrt(a*a + b*b - c)
+                
+                r = min(r, r_temp)
 
         return r
 

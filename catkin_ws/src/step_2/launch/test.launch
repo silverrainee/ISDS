@@ -6,7 +6,7 @@
     <node pkg="step_2" type="odom_pub.py" name="odom_pub"  />
     
     <!-- 판단 파트 -->
-    <node pkg="step_2" type="local_path_pub.py" name="local_path_pub" />
+    <node pkg="step_2" type="local_path_pub_ver2.py" name="local_path_pub" />
     <node pkg="step_2" type="acc_ctrl_pub.py" name="acc_ctrl_pub" />
     
     <!-- 제어 파트 -->

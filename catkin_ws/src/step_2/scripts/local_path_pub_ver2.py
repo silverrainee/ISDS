@@ -32,7 +32,7 @@ class local_path_pub :
 
         #TODO: (2) Local Path publisher 선언
         self.local_path_pub = rospy.Publisher('/local_path',Path, queue_size=1)
-        self.velocity_pub = rospy.Publisher('/velocity', Float32, queue_size=1)
+        self.velocity_pub = rospy.Publisher('/velocity1', Float32, queue_size=1)
         
         # 초기화
         self.is_odom = False
@@ -107,7 +107,7 @@ class local_path_pub :
     def find_target_velocity(self):
         r = self.find_r()
         velocity = Float32()
-        velocity = sqrt(abs(r) * 9.8 * self.friction) * 0.8 * (len(self.local_path_msg.poses) / (self.local_path_size*1.5))
+        velocity = sqrt(abs(r) * 9.8 * self.friction) * (len(self.local_path_msg.poses) / (self.local_path_size))
         velocity = velocity 
         if velocity > self.max_velocity:
             velocity = self.max_velocity

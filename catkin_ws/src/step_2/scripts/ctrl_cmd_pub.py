@@ -38,9 +38,9 @@ class ctrl_cmd_pub:
         self.ctrl_cmd_msg.longlCmdType = 1
 
         self.vehicle_length = 2.984
-        self.lad = 15.0
-        self.lad_min = 3
-        self.lad_max = 20
+        self.lad = 5.0
+        self.lad_min = 3.0
+        self.lad_max = 20.0
         self.lad_gain = 0.6
 
         self.velocity_pid = pidControl(0.30, 0.00, 0.03)
@@ -118,6 +118,8 @@ class ctrl_cmd_pub:
 
         theta = atan2(local_path_point[1] + 0.024*dis,local_path_point[0])
         steering = atan2(2*self.vehicle_length*sin(theta), dis)
+        
+        steering = theta*0.2 + steering*0.8
 
         return steering
 
