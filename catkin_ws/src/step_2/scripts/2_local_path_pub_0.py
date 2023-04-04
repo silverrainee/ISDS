@@ -117,7 +117,7 @@ class local_path_pub :
     def find_r(self):
         r = float('inf')
         
-        size_arr = [20, 50, 100]
+        size_arr = [10, 20, 50, 100]
         
         for size in size_arr:
             if len(self.local_path_msg.poses) < size:

@@ -16,18 +16,14 @@ from lib.mgeo.class_defs import *
 from collections import deque
 from tf.transformations import euler_from_quaternion
 
-# local_path_pub 은 global Path (전역경로) 데이터를 받아 Local Path (지역경로) 를 만드는 예제입니다.
-# Local Path (지역경로) 는 global Path(전역경로) 에서 차량과 가장 가까운 포인트를 시작으로 만들어 집니다.
-
-# 노드 실행 순서 
-# 1. Global Path 와 Odometry 데이터 subscriber 생성 
-# 2. Local Path publisher 선언
-# 3. Local Path 의 Size 결정
-# 4. 콜백함수에서 처음 메시지가 들어오면 현재 위치를 저장
-# 5. Global Path 에서 차량 위치와 가장 가까운 포인트(Currenty Waypoint) 탐색
-# 6. 가장 가까운 포인트(Currenty Waypoint) 위치부터 Local Path 생성 및 예외 처리 
-# 7. Local Path 메세지 Publish
- 
+'''
+1. subscriber 선언
+2. publisher 선언
+3. 상수 변수 선언
+4. Mgeo 데이터 읽어온 후 저장
+    intersection_controller_set, traffic_light_set, crosswalk_set, singlecrosswalk_set 저장
+    교차로 별 boundary(min_x, min_y, max_x, max_y) 저장
+'''
 
 class local_path_pub :
     def __init__(self):
@@ -217,7 +213,7 @@ class local_path_pub :
                 x=self.x
                 y=self.y
 
-                #TODO: (5) Global Path 에서 차량 위치와 가장 가까운 포인트(Current Waypoint) 탐색
+                #TODO: (5) Global Path 에서 차량 위치와 가장 가까운 포인트(Currenty Waypoint) 탐색
                 min_dis=float('inf')
                 current_waypoint=-1
                 for i,waypoint in enumerate(self.global_path_msg.poses) :
