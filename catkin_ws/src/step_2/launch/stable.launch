@@ -1,5 +1,3 @@
-
-
 <launch>
     <!-- mgeo 파트 -->
     <node pkg="step_2" type="global_path_pub.py" name="global_path_pub" />
