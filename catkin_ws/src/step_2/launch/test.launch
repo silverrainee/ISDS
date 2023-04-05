@@ -7,7 +7,7 @@
     
     <!-- 판단 파트 -->
     <node pkg="step_2" type="local_path_pub_ver2.py" name="local_path_pub" />
-    <node pkg="step_2" type="acc_ctrl_pub.py" name="acc_ctrl_pub" />
+    <node pkg="step_2" type="acc_ctrl_pub.py" name="acc_ctrl_pub" output="screen"  />
     
     <!-- 제어 파트 -->
     <node pkg="step_2" type="ctrl_cmd_pub_ver2.py" name="ctrl_cmd_pub" output="screen"  />

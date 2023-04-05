@@ -20,7 +20,8 @@ class ctrl_cmd_pub:
 
         # Subscriber 설정
         rospy.Subscriber("/local_path", Path, self.path_callback)
-        rospy.Subscriber('/velocity', Float32, self.velocity_callback)
+        rospy.Subscriber('/velocity1', Float32, self.velocity1_callback)
+        rospy.Subscriber('/velocity2', Float32, self.velocity2_callback)
         rospy.Subscriber("/odom", Odometry, self.odom_callback)
         rospy.Subscriber("/Ego_topic", EgoVehicleStatus, self.status_callback)
 
@@ -47,14 +48,18 @@ class ctrl_cmd_pub:
         self.steering_pid = pidControl(1.30, 0.00, 0.00)
 
         self.target_steering = 0.0
-        self.target_velocity = 60 / 3.6
+        self.velocity1 = 100 / 3.6
+        self.velocity2 = 100 / 3.6
 
         # 주기 설정
         rate = rospy.Rate(30)
         while not rospy.is_shutdown():
             if self.is_path and self.is_odom and self.is_status and self.is_velocity:
+                self.target_velocity = min(self.velocity1, self.velocity2)
                 self.target_steering = self.find_target_steering()
-
+                rospy.loginfo('velocity1 : {}'.format(self.velocity1))
+                rospy.loginfo('velocity2 : {}'.format(self.velocity2))
+                rospy.loginfo('target velocity : {}'.format(self.target_velocity))
                 velocity_output = self.velocity_pid.output(self.target_velocity, self.status_msg.velocity.x)
                 steering_output = self.steering_pid.output(self.target_steering, 0.0)
 
@@ -77,9 +82,12 @@ class ctrl_cmd_pub:
         self.is_path = True
 
     # Velocity Callback 함수
-    def velocity_callback(self, msg):
-        self.target_velocity = msg.data
+    def velocity1_callback(self, msg):
+        self.velocity1 = msg.data
         self.is_velocity = True
+    
+    def velocity2_callback(self, msg):
+        self.velocity2 = msg.data
 
     # Odometry Callback 함수
     def odom_callback(self, msg):

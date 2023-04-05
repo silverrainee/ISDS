@@ -8,6 +8,7 @@ from nav_msgs.msg import Path, Odometry
 from morai_msgs.msg import EgoVehicleStatus, ObjectStatusList, CtrlCmd
 
 import numpy as np
+from numpy import sin, cos, sqrt
 import tf
 from tf.transformations import euler_from_quaternion
 
@@ -33,10 +34,10 @@ class AccCtrlPub:
         self.is_odom = False
         self.is_status = False
         self.is_obj = False
-
+        
         # 안전 거리 계산을 위한 시간/거리 계수 설정
-        self.time_gain = 0.8
-        self.dis_gain = 2.0
+        self.time_gain = 2.0
+        self.dis_gain = 6.0
 
         # 30 Hz로 실행되는 ROS 루프
         rate = rospy.Rate(30)
@@ -58,7 +59,7 @@ class AccCtrlPub:
         self.is_odom = True
         odom_quaternion = (msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w)
         _, _, self.heading = euler_from_quaternion(odom_quaternion)
-        self.my_pos = [msg.pose.pose.position.x, msg.pose.pose.position.y]
+        self.my_pos = [msg.pose.pose.position.x, msg.pose.pose.position.y] # 절대 좌표
 
     # ROS Topic으로부터 수신한 EgoVehicleStatus 데이터 처리
     def status_callback(self, msg):
@@ -73,36 +74,32 @@ class AccCtrlPub:
     # 주어진 자동차 위치, 방향, 장애물 정보를 바탕으로 가감속 제어 계산
     def calc_acc_control(self, my_pos, heading, obj_data):
         self.target_vel.data = 100.0 / 3.6
-        my_vel = [self.status_data.velocity.x, self.status_data.velocity.y]
+        my_vel = [self.status_data.velocity.x, self.status_data.velocity.y] # 지역 좌표
+        my_vel = [my_vel[0]*cos(heading) - my_vel[1]*sin(heading), my_vel[0]*sin(heading) + my_vel[1]*cos(heading)] # 절대 좌표
 
-        collision_dis = 0.2 * np.linalg.norm(my_vel) ** 2
-        safety_dis = np.linalg.norm(my_vel) * self.time_gain + self.dis_gain
+        collision_dis = (self.vector_magnitude(my_vel)**2) * 0.5 
+        safety_dis = self.vector_magnitude(my_vel) * self.time_gain + self.dis_gain
 
+        flag = False
         acc_flag = False
         target_obj_dis = float('inf')
-        target_obj_vel = float('inf')
+        target_obj_vel = 100 / 3.6
 
-        R = np.array([
-            [np.cos(heading), -np.sin(heading)],
-            [np.sin(heading),  np.cos(heading)]
-        ])
+        for obj in obj_data.npc_list:
 
-        for i in range(obj_data.num_of_npcs):
-            obj = obj_data.npc_list[i]
+            obj_pos = [obj.position.x, obj.position.y] # 절대 좌표
+            obj_vel = [obj.velocity.x / 3.6, obj.velocity.y / 3.6] # 지역 좌표
+            obj_vel = [obj_vel[0]*cos(obj.heading) - obj_vel[1]*sin(obj.heading), obj_vel[0]*sin(obj.heading) + obj_vel[1]*cos(obj.heading)]
 
-            obj_pos = [obj.position.x, obj.position.y]
-            obj_vel = [obj.velocity.x, obj.velocity.y]
-            obj_vel = np.matmul(R, obj_vel)
-
-            relative_pos = obj_pos - my_pos
-            relative_vel = obj_vel - my_vel
+            relative_pos = [obj_pos[0] - my_pos[0], obj_pos[1] - my_pos[1]]
+            relative_vel = [obj_vel[0] - my_vel[0], obj_vel[1] - my_vel[1]]
 
             dis = np.linalg.norm(relative_pos)
 
-            if dis < collision_dis:
-                flag = self.calc_collision(relative_pos, relative_vel)
-            if flag:
-                break
+            # if dis < collision_dis:
+            #     flag = self.calc_collision(relative_pos, relative_vel)
+            # if flag:
+            #     break
 
             if dis < safety_dis:
                 for pose in self.path.poses:
@@ -112,11 +109,12 @@ class AccCtrlPub:
                         if dis < target_obj_dis:
                             acc_flag = True
                             target_obj_dis = dis
-                            target_obj_vel = np.linalg.norm(obj_vel)
+                            target_obj_vel = obj.velocity.x / 3.6
                             break
 
         if acc_flag:
-            self.target_vel.data = min(self.target_vel.data, target_obj_vel)
+            rospy.loginfo('acc on')
+            self.target_vel.data = min(self.target_vel.data, target_obj_vel - 3)
 
     # 장애물과의 충돌 여부를 계산하여 충돌이 예상될 경우 가감속 제어
     def calc_collision(self, relative_pos, relative_vel):
@@ -135,6 +133,14 @@ class AccCtrlPub:
         target_vel = self.status_data.velocity.x / 2
         self.target_vel.data = min(self.target_vel.data, target_vel)
         return True
+    
+    def vector_magnitude(self, vector):
+        ret = 0.0
+        for i in vector:
+            ret = ret + i**2
+        ret = sqrt(ret)
+        
+        return ret
 
 if __name__ == '__main__':
     try:
